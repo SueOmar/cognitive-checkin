@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cognitive Check-in: research prototype</title>
+<style>
+  :root{--ink:#1d2433;--muted:#5b6475;--line:#d9dde6;--bg:#f6f7fa;--card:#fff;--accent:#2557a7;--warn:#b4531a;--ok:#2b7a4b}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+  header{padding:20px 20px 0;max-width:920px;margin:0 auto}
+  h1{font-size:1.4rem;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 12px}
+  .banner{background:#fff6e5;border:1px solid #f0d9a8;border-radius:8px;padding:10px 12px;font-size:.9rem;margin:10px 0}
+  nav{display:flex;gap:6px;max-width:920px;margin:0 auto;padding:0 20px;border-bottom:1px solid var(--line)}
+  nav button{border:0;background:none;padding:10px 14px;font-size:1rem;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent}
+  nav button.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+  main{max-width:920px;margin:0 auto;padding:20px}
+  section{display:none}section.on{display:block}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+  h2{font-size:1.1rem;margin:0 0 8px}
+  button.primary{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 18px;font-size:1rem;cursor:pointer}
+  button.primary:disabled{opacity:.5;cursor:default}
+  .key{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
+  .pair{border:1px solid var(--line);border-radius:6px;text-align:center;width:48px;background:#fff}
+  .pair .s{font-size:1.4rem;padding:2px 0}.pair .d{border-top:1px solid var(--line);font-weight:600;padding:2px 0;background:#f0f3f9}
+  .target{font-size:3.2rem;text-align:center;margin:6px 0;min-height:4.5rem}
+  .pad{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;max-width:520px;margin:0 auto}
+  .pad button{padding:12px 0;font-size:1.1rem;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer}
+  .pad button:active{background:#e8eefb}
+  .timer{text-align:center;color:var(--muted);margin:6px 0}
+  label{display:block;margin:10px 0 2px;font-weight:600;font-size:.95rem}
+  input[type=range]{width:100%}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .tags label{font-weight:400;display:flex;align-items:center;gap:6px;margin:0;border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+  .result{font-size:1.05rem}
+  table{border-collapse:collapse;width:100%;font-size:.92rem}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+  .flag{color:var(--warn);font-weight:600}.fine{color:var(--ok);font-weight:600}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin-top:6px}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle}
+  .small{font-size:.85rem;color:var(--muted)}
+  svg{width:100%;height:auto;display:block}
+</style>
+</head>
+<body>
+<header>
+  <h1>Cognitive Check-in</h1>
+  <p class="sub">A research prototype: brief, repeatable measures compared with each person's own baseline.</p>
+  <div class="banner"><strong>Prototype only.</strong> Not a medical device, not clinically validated, and it does not diagnose or predict anything. All dashboard data is synthetic. Nothing you enter here is stored or sent anywhere.</div>
+</header>
+<nav>
+  <button class="on" data-tab="checkin">Check-in</button>
+  <button data-tab="dash">Clinician dashboard</button>
+  <button data-tab="about">About</button>
+</nav>
+<main>
+
+<section id="checkin" class="on">
+  <div class="card">
+    <h2>1. Symbol-matching task (45 seconds)</h2>
+    <p class="small">Match each symbol to its number using the key. Go quickly, but try to be accurate. This is an original task for demonstration; it is not a standard neuropsychological test.</p>
+    <div class="key" id="key"></div>
+    <div class="target" id="target">&nbsp;</div>
+    <div class="pad" id="pad"></div>
+    <div class="timer" id="timer">Ready</div>
+    <div style="text-align:center;margin-top:8px"><button class="primary" id="start">Start</button></div>
+    <div class="result" id="taskResult"></div>
+  </div>
+  <div class="card">
+    <h2>2. Daily log</h2>
+    <label for="sleep">Hours slept last night: <span id="sleepV">7</span></label>
+    <input type="range" id="sleep" min="0" max="12" step="0.5" value="7">
+    <label for="stress">Stress today (0 = none, 10 = very high): <span id="stressV">3</span></label>
+    <input type="range" id="stress" min="0" max="10" step="1" value="3">
+    <label>Anything notable today?</label>
+    <div class="tags" id="tags"></div>
+    <div style="margin-top:14px"><button class="primary" id="add">Add to my example dashboard</button></div>
+    <p class="small">This demo asks nothing about suicidal thoughts. A real study would need ethics approval, informed consent, and a clinical safety protocol before any such question is asked.</p>
+  </div>
+</section>
+
+<section id="dash">
+  <div class="card">
+    <h2>Example Participant A (synthetic data)</h2>
+    <p class="small">Weeks 1 to 4 set the baseline. A change is flagged for review when two check-ins in a row fall more than 1.5 standard deviations below the person's own baseline.</p>
+    <div id="chart"></div>
+    <div class="legend">
+      <span><span class="dot" style="background:#2557a7"></span>Processing score</span>
+      <span><span class="dot" style="background:#b4531a"></span>Flagged</span>
+      <span><span class="dot" style="background:#9aa3b5"></span>Baseline range</span>
+      <span><span class="dot" style="background:#2b7a4b"></span>Logged event</span>
+    </div>
+  </div>
+  <div class="card">
+    <h2>What changed</h2>
+    <div id="summary"></div>
+  </div>
+  <div class="card">
+    <h2>Check-ins</h2>
+    <div style="overflow-x:auto"><table id="tbl"></table></div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="card">
+    <h2>Why this exists</h2>
+    <p>Researchers still lack a strong predictor of who moves from suicidal thoughts to suicidal behavior, and few studies follow cognition, sleep, and life events day to day in veterans. This prototype explores one thin slice of that problem: a brief cognitive check-in, paired with a short log of events and symptoms, each compared with a person's own baseline.</p>
+    <h2>What it does not do</h2>
+    <p>It does not assess suicide risk, make predictions, or replace clinical judgment. Its purpose is to make change over time visible so that researchers and clinicians can ask better questions.</p>
+    <h2>Next steps</h2>
+    <p>Ethics approval and a clinical safety plan; testing with clinicians to see whether they can tell what changed, understand why it was flagged, and know what to ask next; then a pilot with consenting participants.</p>
+  </div>
+</section>
+
+</main>
+<script>
+(function(){
+  // ---------- tabs ----------
+  var tabs=document.querySelectorAll('nav button');
+  tabs.forEach(function(b){b.addEventListener('click',function(){
+    tabs.forEach(function(x){x.classList.remove('on')});b.classList.add('on');
+    document.querySelectorAll('section').forEach(function(s){s.classList.remove('on')});
+    document.getElementById(b.dataset.tab).classList.add('on');
+    if(b.dataset.tab==='dash')render();
+  })});
+
+  // ---------- task ----------
+  var SYMS=['▲','●','■','★','◆','♥','♣','♠','◐'];
+  var keyEl=document.getElementById('key'),pad=document.getElementById('pad'),target=document.getElementById('target');
+  var timerEl=document.getElementById('timer'),startBtn=document.getElementById('start'),resEl=document.getElementById('taskResult');
+  SYMS.forEach(function(s,i){var d=document.createElement('div');d.className='pair';d.innerHTML='<div class="s">'+s+'</div><div class="d">'+(i+1)+'</div>';keyEl.appendChild(d)});
+  for(var n=1;n<=9;n++){(function(n){var b=document.createElement('button');b.textContent=n;b.addEventListener('click',function(){answer(n)});pad.appendChild(b)})(n)}
+  var running=false,cur=0,correct=0,total=0,times=[],shownAt=0,endAt=0,tick=null,lastScore=null;
+  function next(){cur=Math.floor(Math.random()*9);target.textContent=SYMS[cur];shownAt=performance.now()}
+  function answer(n){
+    if(!running)return;
+    total++;var rt=performance.now()-shownAt;
+    if(n===cur+1){correct++;times.push(rt)}
+    next();
+  }
+  startBtn.addEventListener('click',function(){
+    if(running)return;
+    running=true;correct=0;total=0;times=[];resEl.textContent='';startBtn.disabled=true;
+    endAt=performance.now()+45000;next();
+    tick=setInterval(function(){
+      var left=Math.max(0,Math.ceil((endAt-performance.now())/1000));
+      timerEl.textContent=left+' s left';
+      if(performance.now()>=endAt)finish();
+    },200);
+  });
+  function finish(){
+    clearInterval(tick);running=false;startBtn.disabled=false;target.innerHTML='&nbsp;';timerEl.textContent='Done';
+    var acc=total?Math.round(100*correct/total):0;
+    var mean=times.length?Math.round(times.reduce(function(a,b){return a+b},0)/times.length):0;
+    lastScore={score:correct,acc:acc,rt:mean};
+    resEl.innerHTML='<p><strong>'+correct+'</strong> correct matches &middot; accuracy '+acc+'% &middot; average response '+mean+' ms</p>';
+  }
+
+  // ---------- daily log ----------
+  var TAGS=['Stressful event','Conflict with someone close','Pain flare','Missed routine or medication','Alcohol','Anniversary or loss reminder','Good day'];
+  var tagsEl=document.getElementById('tags');
+  TAGS.forEach(function(t){var l=document.createElement('label');l.innerHTML='<input type="checkbox" value="'+t+'"> '+t;tagsEl.appendChild(l)});
+  var sleep=document.getElementById('sleep'),stress=document.getElementById('stress');
+  sleep.addEventListener('input',function(){document.getElementById('sleepV').textContent=sleep.value});
+  stress.addEventListener('input',function(){document.getElementById('stressV').textContent=stress.value});
+
+  // ---------- synthetic data ----------
+  var DATA=[
+    {w:1,score:41,rt:1210,sleep:7.5,stress:3,ev:[]},
+    {w:2,score:43,rt:1180,sleep:7,stress:3,ev:[]},
+    {w:3,score:42,rt:1195,sleep:7,stress:4,ev:[]},
+    {w:4,score:44,rt:1170,sleep:7.5,stress:3,ev:[]},
+    {w:5,score:42,rt:1200,sleep:7,stress:4,ev:[]},
+    {w:6,score:43,rt:1185,sleep:7,stress:3,ev:[]},
+    {w:7,score:41,rt:1215,sleep:6.5,stress:5,ev:[]},
+    {w:8,score:40,rt:1240,sleep:6,stress:6,ev:['Conflict with someone close']},
+    {w:9,score:35,rt:1380,sleep:4.5,stress:8,ev:['Stressful event','Anniversary or loss reminder']},
+    {w:10,score:34,rt:1410,sleep:5,stress:8,ev:['Stressful event']},
+    {w:11,score:38,rt:1300,sleep:6,stress:6,ev:[]},
+    {w:12,score:41,rt:1225,sleep:7,stress:4,ev:['Good day']}
+  ];
+  var extra=[];
+
+  function mean(a){return a.reduce(function(x,y){return x+y},0)/a.length}
+  function sd(a){var m=mean(a);return Math.sqrt(mean(a.map(function(x){return (x-m)*(x-m)})))}
+  function analyze(rows){
+    var base=rows.slice(0,4).map(function(r){return r.score});
+    var m=mean(base),s=Math.max(sd(base),1);
+    var flags=rows.map(function(r){return r.score<m-1.5*s});
+    var flagged=rows.map(function(r,i){return flags[i]&&i>0&&flags[i-1]||flags[i]&&flags[i+1]});
+    return {m:m,s:s,lo:m-1.5*s,hi:m+1.5*s,flagged:flagged};
+  }
+
+  function render(){
+    var rows=DATA.concat(extra),a=analyze(rows);
+    // chart
+    var W=860,H=300,L=44,R=14,T=16,B=52,n=rows.length;
+    var min=Math.min.apply(null,rows.map(function(r){return r.score}).concat([a.lo]))-3;
+    var max=Math.max.apply(null,rows.map(function(r){return r.score}).concat([a.hi]))+3;
+    function x(i){return L+(W-L-R)*(n===1?0.5:i/(n-1))}
+    function y(v){return T+(H-T-B)*(1-(v-min)/(max-min))}
+    var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Processing score over weekly check-ins with baseline range">';
+    svg+='<rect x="'+L+'" y="'+y(a.hi)+'" width="'+(W-L-R)+'" height="'+(y(a.lo)-y(a.hi))+'" fill="#9aa3b5" opacity=".25"/>';
+    for(var g=0;g<=4;g++){var v=min+(max-min)*g/4;svg+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="#e3e6ee"/><text x="'+(L-6)+'" y="'+(y(v)+4)+'" font-size="11" text-anchor="end" fill="#5b6475">'+Math.round(v)+'</text>'}
+    var pts=rows.map(function(r,i){return x(i)+','+y(r.score)}).join(' ');
+    svg+='<polyline points="'+pts+'" fill="none" stroke="#2557a7" stroke-width="2.5"/>';
+    rows.forEach(function(r,i){
+      var f=a.flagged[i];
+      svg+='<circle cx="'+x(i)+'" cy="'+y(r.score)+'" r="'+(f?6:4)+'" fill="'+(f?'#b4531a':'#2557a7')+'"/>';
+      svg+='<text x="'+x(i)+'" y="'+(H-30)+'" font-size="11" text-anchor="middle" fill="#5b6475">'+(r.you?'You':'W'+r.w)+'</text>';
+      if(r.ev&&r.ev.length&&r.ev[0]!=='Good day')svg+='<polygon points="'+(x(i)-5)+','+(H-12)+' '+(x(i)+5)+','+(H-12)+' '+x(i)+','+(H-22)+'" fill="#2b7a4b"><title>'+r.ev.join('; ')+'</title></polygon>';
+    });
+    svg+='<text x="'+L+'" y="'+(T-3)+'" font-size="11" fill="#5b6475">Symbol-matching score (correct in 45 s)</text></svg>';
+    document.getElementById('chart').innerHTML=svg;
+
+    // summary: contiguous flagged run
+    var idx=[];a.flagged.forEach(function(f,i){if(f)idx.push(i)});
+    var sum=document.getElementById('summary');
+    if(!idx.length){sum.innerHTML='<p class="fine">No flagged changes against this person\'s own baseline.</p>';}
+    else{
+      var first=idx[0],last=idx[idx.length-1],seg=rows.slice(first,last+1);
+      var drop=Math.round(100*(a.m-mean(seg.map(function(r){return r.score})))/a.m);
+      var rtUp=Math.round(100*(mean(seg.map(function(r){return r.rt}))/mean(rows.slice(0,4).map(function(r){return r.rt}))-1));
+      var sl=mean(seg.map(function(r){return r.sleep})).toFixed(1),slB=mean(rows.slice(0,4).map(function(r){return r.sleep})).toFixed(1);
+      var evs={};seg.forEach(function(r){(r.ev||[]).forEach(function(e){evs[e]=1})});
+      var evl=Object.keys(evs).join('; ')||'none logged';
+      sum.innerHTML='<p><span class="flag">Flagged for review.</span> Check-ins '+(rows[first].you?'You':'week '+rows[first].w)+' to '+(rows[last].you?'You':'week '+rows[last].w)+'.</p>'+
+        '<ul><li><strong>Which measure:</strong> processing score, about '+drop+'% below this person\'s baseline average ('+a.m.toFixed(1)+'). Response time about '+rtUp+'% slower.</li>'+
+        '<li><strong>Over what period:</strong> '+seg.length+' consecutive check-ins.</li>'+
+        '<li><strong>Logged alongside:</strong> sleep averaged '+sl+' h (baseline '+slB+' h); events: '+evl+'.</li></ul>'+
+        '<p class="small">A flag is a prompt for a conversation, not a conclusion. A clinician might ask: what was happening these weeks?</p>';
+    }
+    // table
+    var h='<tr><th>Check-in</th><th>Score</th><th>Avg response (ms)</th><th>Sleep (h)</th><th>Stress</th><th>Events</th><th>Status</th></tr>';
+    rows.forEach(function(r,i){h+='<tr><td>'+(r.you?'You (not saved)':'Week '+r.w)+'</td><td>'+r.score+'</td><td>'+r.rt+'</td><td>'+r.sleep+'</td><td>'+r.stress+'</td><td>'+((r.ev||[]).join('; ')||'')+'</td><td class="'+(a.flagged[i]?'flag':'fine')+'">'+(a.flagged[i]?'Flagged':'In range')+'</td></tr>'});
+    document.getElementById('tbl').innerHTML=h;
+  }
+
+  document.getElementById('add').addEventListener('click',function(){
+    if(!lastScore){alert('Please complete the 45-second task first.');return}
+    var ev=[];tagsEl.querySelectorAll('input:checked').forEach(function(c){ev.push(c.value)});
+    extra=[{w:13,you:true,score:lastScore.score,rt:lastScore.rt,sleep:parseFloat(sleep.value),stress:parseInt(stress.value,10),ev:ev}];
+    tabs[1].click();
+  });
+  render();
+})();
+</script>
+</body>
+</html>
