@@ -2,7 +2,7 @@
 
 I'm Sara Hassan Omar. This is a small prototype for the question I want to spend my doctoral research on: what turns suicidal thoughts into suicidal behavior, and can we see the change early enough to ask better questions?
 
-I know this problem from the John D. Dingell VA Medical Center, where I tested veterans and managed the REDCap database that followed them across visits. Few studies follow cognition, sleep, and life events day to day. This prototype is one thin slice of that gap.
+I know this problem from my work, where I tested participants and managed the REDCap database that followed them across visits. Few studies follow cognition, sleep, and life events day to day. This prototype is one thin slice of that gap.
 
 ## What it does
 
